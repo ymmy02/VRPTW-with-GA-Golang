@@ -1,7 +1,6 @@
 .DS_Store
-*.pyc
+main
 *.png
 test/
 reference/
 results/
-__pycache__/
