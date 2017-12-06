@@ -8,8 +8,8 @@ const (
 	WITHIN = iota
 	EARY
 	LATE
-	DEPOT = iota
-	CUSTOMER
+	DEPOT    = 0
+	CUSTOMER = 1
 )
 
 type Node struct {
