@@ -14,7 +14,21 @@ const (
 //*********//
 // Private //
 //*********//
-func contains(indvList []*Individual, id int) {
+func copyIndividual(indv Individual) *Individual {
+	var newch [][]int
+	copy(newch, indv.Chromosome)
+	distance = indv.Distance
+	fitness = indv.Fitness
+	newIndv = &Individual{
+		Chromosome: newch,
+		Distance:   distance,
+		Fitness:    fitness,
+	}
+
+	return newIndv
+}
+
+func containsIndividual(indvList []*Individual, id int) {
 	for _, indv := range indvList {
 		if indv.ID() == id {
 			return true
@@ -60,12 +74,12 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 	for i, candidate := range currentRankCandidates {
 		id := candidate.ID()
 		isDominated := false
-		if contains(dominatedList, id) {
+		if containsIndividual(dominatedList, id) {
 			continue
 		}
 		for _, counterpart := range current_rank_candidates[i+1:] {
 			id = counterpart.ID()
-			if contains(dominatedList, id) {
+			if containsIndividual(dominatedList, id) {
 				continue
 			}
 			switch doesLeftDominateRight(candidate, counterpart) {
