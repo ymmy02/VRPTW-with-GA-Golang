@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+*.png
+test/
+reference/
+results/
+__pycache__/
