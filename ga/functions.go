@@ -120,6 +120,16 @@ func doesLeftDominateRight(candidata *Individual, counterpart *Individual) int {
 	return SAME
 }
 
+func removeNullRoute(chromosome [][]int) [][]int {
+	newChromosome := make([][]int, 0, len(chromosome))
+	for i, route := range chromosome {
+		if len(route) > 0 {
+			newChromosome = append(newChromosome, chromosome[i])
+		}
+	}
+	return newChromosome
+}
+
 func makeParetoRankingList(indvList []*Individual) [][]*Individual {
 	rankingList := make([][]*Individual)
 	for len(indvList) > 0 {
