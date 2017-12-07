@@ -3,6 +3,7 @@ package ga
 import (
 	"../node"
 	"../ut"
+	"fmt"
 	"math/rand"
 )
 
@@ -79,7 +80,8 @@ func getNoConflictList(origin []int, counterpart []int) []int {
 	return tmp
 }
 
-func partiallyMappedCrossover(nodes *node.NodeList, ch1, ch2 [][]int) {
+func partiallyMappedCrossover(nodes *node.NodeList,
+	ch1, ch2 [][]int) ([][]int, [][]int) {
 	flattench1 := ut.flatten(ch1)
 	flattench2 := ut.flatten(ch2)
 	size := len(flattench1)
@@ -128,6 +130,77 @@ func partiallyMappedCrossover(nodes *node.NodeList, ch1, ch2 [][]int) {
 // ===== </Partially Mapped Crossover (PMX)> ===== //
 
 // ===== <Best Cost Route Crossover (BCRC)> ===== //
+func insertNode(nodes *node.NodeList,
+	chromosome [][]int, L []int) [][]int {
+	size := len(chromosome)
+	newChromosome := make([][]int, 0, len(chromosome))
+	// Copy Chromosome
+	for i := 0; i < size; i++ {
+		tmp := make([]int, len(chromosome[i]))
+		copy(tmp, chromosome[i])
+		newChromosome = append(newChromosome, tmp)
+	}
+
+	for n, insertNode := range L {
+		feasibleListI := make([]int, 0)
+		feasibleListJ := make([]int, 0)
+		for i, route := range chromosome {
+			for j := 0; j < len(route)+1; j++ {
+				tmp := append(route[:j+1], route[j:]...)
+				tmp[j] = insertNode
+				// Debug
+				fmt.Println(tmp)
+				if nodes.IsFeasible(tmp) {
+					feasibleListI = append(feasibleListI, i)
+					feasibleListJ = append(feasibleListJ, j)
+				}
+			}
+			if len(feasibleListI) == 0 {
+				newRoute := make([]int, 1)
+				newRoute[0] = insertNode
+				newChromosome = append(newChromosome, newRoute)
+			} else {
+				rand.Seed(time.Now().UnixNano())
+				index := rand.Intn(len(feasibleListI))
+				indexI := feasibleListI[index]
+				indexJ := feasibleListJ[index]
+				tmp := make([]int, len(newChromosome[indexI]))
+				copy(tmp, newChromosome[indexI])
+				tmp := append(tmp[:indexJ+1], tmp[indexJ:]...)
+				tmp[indexJ] = insertNode
+				newChromosome[indexI] = tmp
+			}
+		}
+	}
+	return newChromosome
+}
+
+func deleteNodes(chromosome, route) [][]int {
+	chromosomeDeleted := make([][]int, 0, len(chromosome))
+	for i, rt := range chromosome {
+		routeDeleated := make([]int, 0)
+		for _, node := range rt {
+			if !containsNode(route, node) {
+				routeDeleated = append(routeDeleated, node)
+			}
+		}
+		chromosomeDeleted = append(chromosomeDeleted, routeDeleated)
+	}
+	return chromosomeDeleted
+}
+
+func bestCostRouteCrossover(nodes *node.NodeList,
+	ch1, ch2 [][]int) ([][]int, [][]int) {
+	rand.Seed(time.Now().UnixNano())
+	index1 := rand.Intn(len(ch1))
+	index2 := rand.Intn(len(ch2))
+	ch1 := deleteNodes(ch1, route2)
+	ch2 := deleteNodes(ch2, route1)
+	tmp1 := insertNode(nodes, ch1, route2)
+	tmp2 := insertNode(nodes, ch2, route1)
+	return tmp1, tmp2
+}
+
 // ===== </Best Cost Route Crossover (BCRC)> ===== //
 
 //********//
