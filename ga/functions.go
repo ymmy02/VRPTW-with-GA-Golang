@@ -55,7 +55,7 @@ func shuffle(data []int) {
 }
 
 func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
-	chromosome := make([][]int)
+	chromosome := make([][]int, 0)
 	size := len(flattench)
 	var cut1, cut2 int = 0, 0
 	shuffle(flattench)
