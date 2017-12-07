@@ -209,7 +209,7 @@ func bestCostRouteCrossover(nodes *node.NodeList,
 func Crossover(method string, nodes *node.NodeList,
 	offsprings []*Individual, rate float64) []*Individual {
 	population := len(offsprings)
-	newOffsprings := make([]*Individual, 0, offsprings)
+	newOffsprings := make([]*Individual, 0, population)
 	half := int(population / 2)
 
 	halfList1 := offsprings[:half]
