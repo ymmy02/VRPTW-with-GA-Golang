@@ -79,8 +79,10 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 }
 
 func copyIndividual(indv Individual) *Individual {
-	var newch [][]int
+	newch := make([][]int, len(indv))
 	copy(newch, indv.Chromosome)
+	// Debug
+	fmt.Println(newch)
 	distance = indv.Distance
 	fitness = indv.Fitness
 	newIndv = &Individual{
