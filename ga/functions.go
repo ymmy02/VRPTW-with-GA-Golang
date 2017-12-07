@@ -38,7 +38,7 @@ func calcOneVehicleDistance(nodes *node.NodeList, route []int) float64 {
 	return totalDistance
 }
 
-func clacDistance(nodes, chromosome [][]int) float64 {
+func calcDistance(nodes *node.NodeList, chromosome [][]int) float64 {
 	var totalDistance float64 = 0.0
 	for _, route := range chromosome {
 		totalDistance += calcOneVehicleDistance(nodes, route)
@@ -149,6 +149,17 @@ func CreateIndividualList(population int, nodes *node.NodeList) []*Individual {
 		indvList = append(indvList, indv)
 	}
 	return indvList
+}
+
+func SetDistance(nodes *node.NodeList, indvList []*Individual) {
+	for i := 0; i < len(indvList); i++ {
+		indvList[i].Distance = calcDistance(nodes, indvList[i].chromosome)
+	}
+}
+
+func WsumEvaluate(nvehicle int, distance float64,
+	wNvehicle float64, wDistance float64) float64 {
+	return float64(nvehicle)*wNvehicle + distance*wDistance
 }
 
 func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual, []*Individual) {
