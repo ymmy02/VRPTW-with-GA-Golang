@@ -72,7 +72,7 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 				break
 			}
 		}
-		if breakFlag {
+		if !breakFlag {
 			cut1 = cut2
 		}
 		chromosome = append(chromosome, route)
@@ -83,8 +83,6 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 func copyIndividual(indv *Individual) *Individual {
 	newch := make([][]int, len(indv.Chromosome))
 	copy(newch, indv.Chromosome)
-	// Debug
-	fmt.Println(newch)
 	distance := indv.Distance
 	fitness := indv.Fitness
 	newIndv := &Individual{

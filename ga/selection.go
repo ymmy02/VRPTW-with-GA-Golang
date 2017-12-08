@@ -47,7 +47,7 @@ func tournament(parents []*Individual, tournamentSize int, eliteSize int) []*Ind
 	samples := make([]*Individual, tournamentSize)
 	var tmp *Individual
 	population -= eliteSize
-	for i := 0; i < population; i++ {
+	for n := 0; n < population; n++ {
 		var minFitness float64 = 1e14
 		for j := 0; j < tournamentSize; j++ {
 			samples[j] = choice(parents)

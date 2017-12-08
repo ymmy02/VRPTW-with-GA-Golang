@@ -27,11 +27,12 @@ func (indv *Individual) NVehicle() int {
 // Functions //
 //***********//
 func CreateIndividual(nodes *node.NodeList) *Individual {
-	flattench := make([]int, 0, len(nodes.CusotmersIDList()))
+	flattench := make([]int, len(nodes.CusotmersIDList()))
 	chromosome := make([][]int, 0)
 	customersIDList := nodes.CusotmersIDList()
 	copy(flattench, customersIDList)
 	chromosome = shapeFlatToVehicles(nodes, flattench)
-	indv := &Individual{Chromosome: chromosome}
+	indv := &Individual{Chromosome: make([][]int, 0)}
+	indv.Chromosome = chromosome
 	return indv
 }

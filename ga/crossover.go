@@ -146,11 +146,9 @@ func insertNode(nodes *node.NodeList,
 		feasibleListI := make([]int, 0)
 		feasibleListJ := make([]int, 0)
 		for i, route := range chromosome {
-			for j := 0; j < len(route)+1; j++ {
+			for j := 0; j < len(route); j++ {
 				tmp := append(route[:j+1], route[j:]...)
 				tmp[j] = insertNode
-				// Debug
-				fmt.Println(tmp)
 				if nodes.IsFeasible(tmp) {
 					feasibleListI = append(feasibleListI, i)
 					feasibleListJ = append(feasibleListJ, j)
