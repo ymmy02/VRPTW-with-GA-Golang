@@ -2,6 +2,8 @@ package vrptw
 
 import (
 	"../ga"
+	"../node"
+	"../ut"
 	"fmt"
 	"sort"
 )
@@ -12,7 +14,7 @@ type VRPTW struct {
 	generations   []int
 	nvehicleAvgs  []float64
 	distanceAvgs  []float64
-	nvehicleBests []int
+	nvehicleBests []float64
 	distanceBests []float64
 }
 
@@ -20,15 +22,15 @@ type VRPTW struct {
 // Methods of VRPTW //
 //******************//
 // = Private = //
-func (v *VRPTW) record(selection string, generation, indvList []*ga.Individual) {
-	bestIdnvList := up.PickUpBestIndvs(selection, indvList)
+func (v *VRPTW) record(selection string, generation int, indvList []*ga.Individual) {
+	bestIdnvList := ut.PickUpBestIndvs(selection, indvList)
 
-	nvehicleAvg = ut.CalcNvehicleAverage(indvList)
-	distanceAvg = ut.CalcDistanceAverage(indvList)
-	nvehicleBest = ut.CalcNvehicleAverage(bestIdnvList)
-	distanceBest = ut.CalcDistanceAverage(bestIdnvList)
+	nvehicleAvg := ut.CalcNvehicleAverage(indvList)
+	distanceAvg := ut.CalcDistanceAverage(indvList)
+	nvehicleBest := ut.CalcNvehicleAverage(bestIdnvList)
+	distanceBest := ut.CalcDistanceAverage(bestIdnvList)
 
-	v.generations = append(v.generation, generation)
+	v.generations = append(v.generations, generation)
 	v.nvehicleAvgs = append(v.nvehicleAvgs, nvehicleAvg)
 	v.distanceAvgs = append(v.distanceAvgs, distanceAvg)
 	v.nvehicleBests = append(v.nvehicleBests, nvehicleBest)
@@ -69,9 +71,9 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 			nvehicle := indv.NVehicle()
 			distance := indv.Distance
 			parents[i].Fitness =
-				ut.FindIndexInt(nvehicleList, nvehicle) + 1
+				float64(ut.FindIndexInt(nvehicleList, nvehicle) + 1)
 			parents[i].Fitness +=
-				ut.FindIndexFloat64(distanceList, distance) + 1
+				float64(ut.FindIndexFloat64(distanceList, distance) + 1)
 		}
 	default:
 	}
@@ -80,10 +82,14 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 	//***********//
 	// Main Loop //
 	//***********//
-	for n := 1; n <= generation_span; n++ {
+	for n := 1; n <= generationSpan; n++ {
+		// Selection
 		offsprings := ga.Selection(selection, parents, tournamentSize, eliteSize)
-		offsprings := ga.Crossover(crossover, nodes, offsprings, cxRate)
-		offsprings := ga.Mutation(mutation, nodes, offsprings, muRate)
+		// Crossover
+		offsprings = ga.Crossover(crossover, nodes, offsprings, cxRate)
+		// Mutation
+		offsprings = ga.Mutation(mutation, nodes, offsprings, muRate)
+		// Change Generation
 		copy(parents, offsprings)
 		ga.SetDistance(nodes, parents)
 		// Evaluate Fitness
@@ -109,17 +115,18 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 				nvehicle := indv.NVehicle()
 				distance := indv.Distance
 				parents[i].Fitness =
-					ut.FindIndexInt(nvehicleList, nvehicle) + 1
-				+ut.FindIndexFloat64(distanceList, distance) + 1
+					float64(ut.FindIndexInt(nvehicleList, nvehicle) + 1)
+				parents[i].Fitness +=
+					float64(ut.FindIndexFloat64(distanceList, distance) + 1)
 			}
 		default:
 		}
-		v.bsetSolutions = ut.PickUpBestIndvs(selection, parents)
+		v.bestSolutions = ut.PickUpBestIndvs(selection, parents)
 		v.record(selection, n, parents)
-		v.printLog(i)
+		v.printLog(n)
 	}
 
-	isOptimized = true
+	v.isOptimized = true
 }
 
 //***********//
@@ -139,7 +146,7 @@ func removeDuplicateInt(list []int) []int {
 	return results
 }
 
-func removeDuplicateFloat64(list []float64) []string {
+func removeDuplicateFloat64(list []float64) []float64 {
 	results := make([]float64, 0, len(list))
 	encountered := map[float64]bool{}
 	for i := 0; i < len(list); i++ {
@@ -154,21 +161,22 @@ func removeDuplicateFloat64(list []float64) []string {
 func (v *VRPTW) printLog(generation int) {
 	fmt.Println("### Best Solutions of Generation", generation, "###")
 	for _, bestIndv := range v.bestSolutions {
-		vehicles = bestIndv.NVehicle()
-		distance = bestIndv.Distance
+		vehicles := bestIndv.NVehicle()
+		distance := bestIndv.Distance
 		fmt.Println("Vehicles :", vehicles, "Distance :", distance)
 	}
 }
 
 // = Public = //
 func CreateInstance(population, generationSpan int) *VRPTW {
-	v = &VRPTW{
+	v := &VRPTW{
 		isOptimized:   false,
 		bestSolutions: make([]*ga.Individual, 0, 10),
 		generations:   make([]int, 0, generationSpan+1),
 		nvehicleAvgs:  make([]float64, 0, generationSpan+1),
 		distanceAvgs:  make([]float64, 0, generationSpan+1),
-		nvehicleBests: make([]int, 0, generationSpan+1),
+		nvehicleBests: make([]float64, 0, generationSpan+1),
 		distanceBests: make([]float64, 0, generationSpan+1),
 	}
+	return v
 }

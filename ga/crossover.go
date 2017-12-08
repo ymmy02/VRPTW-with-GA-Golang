@@ -2,9 +2,10 @@ package ga
 
 import (
 	"../node"
-	"../ut"
 	"fmt"
 	"math/rand"
+	"os"
+	"time"
 )
 
 //*********//
@@ -30,8 +31,8 @@ func findIndex(flattench []int, node int) int {
 
 // ===== <Uniform Order Crossover (UOX)> ===== //
 func uniformOrderCrossover(nodes *node.NodeList, ch1, ch2 [][]int) ([][]int, [][]int) {
-	flattench1 := ut.flatten(ch1)
-	flattench2 := ut.flatten(ch2)
+	flattench1 := Flatten(ch1)
+	flattench2 := Flatten(ch2)
 	size := len(flattench1)
 	mask := make([]int, size)
 	for i := 0; i < size; i++ {
@@ -60,8 +61,8 @@ func uniformOrderCrossover(nodes *node.NodeList, ch1, ch2 [][]int) ([][]int, [][
 		}
 	}
 
-	tmp1 := shapeFlatToVehicles(nodes, tmp1)
-	tmp2 := shapeFlatToVehicles(nodes, tmp2)
+	tmp1 := shapeFlatToVehicles(nodes, tmpch1)
+	tmp2 := shapeFlatToVehicles(nodes, tmpch2)
 	return tmp1, tmp2
 }
 
@@ -69,10 +70,10 @@ func uniformOrderCrossover(nodes *node.NodeList, ch1, ch2 [][]int) ([][]int, [][
 
 // ===== <Partially Mapped Crossover (PMX)> ===== //
 func getNoConflictList(origin []int, counterpart []int) []int {
-	tmp := make([]int, len(oringin))
-	copy(tmp, oringin)
+	tmp := make([]int, len(origin))
+	copy(tmp, origin)
 
-	for i, node := range oringin {
+	for i, node := range origin {
 		if containsNode(counterpart, node) {
 			tmp[i] = 0
 		}
@@ -82,8 +83,8 @@ func getNoConflictList(origin []int, counterpart []int) []int {
 
 func partiallyMappedCrossover(nodes *node.NodeList,
 	ch1, ch2 [][]int) ([][]int, [][]int) {
-	flattench1 := ut.flatten(ch1)
-	flattench2 := ut.flatten(ch2)
+	flattench1 := Flatten(ch1)
+	flattench2 := Flatten(ch2)
 	size := len(flattench1)
 	rand.Seed(time.Now().UnixNano())
 	point1 := rand.Intn(size - 1)
@@ -103,9 +104,9 @@ func partiallyMappedCrossover(nodes *node.NodeList,
 	tmpch1 = append(tmpch1, suf...)
 
 	tmpch2 := make([]int, size)
-	tmp := flattench1[point1:point2]
-	pre := getNoConflictList(flattench2[:point1], tmp)
-	suf := getNoConflictList(flattench2[point2:], tmp)
+	tmp = flattench1[point1:point2]
+	pre = getNoConflictList(flattench2[:point1], tmp)
+	suf = getNoConflictList(flattench2[point2:], tmp)
 	tmpch2 = append(pre, tmp...)
 	tmpch2 = append(tmpch1, suf...)
 
@@ -122,8 +123,8 @@ func partiallyMappedCrossover(nodes *node.NodeList,
 		}
 	}
 
-	tmp1 := shapeFlatToVehicles(nodes, tmp1)
-	tmp2 := shapeFlatToVehicles(nodes, tmp2)
+	tmp1 := shapeFlatToVehicles(nodes, tmpch1)
+	tmp2 := shapeFlatToVehicles(nodes, tmpch2)
 	return tmp1, tmp2
 }
 
@@ -141,7 +142,7 @@ func insertNode(nodes *node.NodeList,
 		newChromosome = append(newChromosome, tmp)
 	}
 
-	for n, insertNode := range L {
+	for _, insertNode := range L {
 		feasibleListI := make([]int, 0)
 		feasibleListJ := make([]int, 0)
 		for i, route := range chromosome {
@@ -166,7 +167,7 @@ func insertNode(nodes *node.NodeList,
 				indexJ := feasibleListJ[index]
 				tmp := make([]int, len(newChromosome[indexI]))
 				copy(tmp, newChromosome[indexI])
-				tmp := append(tmp[:indexJ+1], tmp[indexJ:]...)
+				tmp = append(tmp[:indexJ+1], tmp[indexJ:]...)
 				tmp[indexJ] = insertNode
 				newChromosome[indexI] = tmp
 			}
@@ -175,9 +176,9 @@ func insertNode(nodes *node.NodeList,
 	return newChromosome
 }
 
-func deleteNodes(chromosome, route) [][]int {
+func deleteNodes(chromosome [][]int, route []int) [][]int {
 	chromosomeDeleted := make([][]int, 0, len(chromosome))
-	for i, rt := range chromosome {
+	for _, rt := range chromosome {
 		routeDeleated := make([]int, 0)
 		for _, node := range rt {
 			if !containsNode(route, node) {
@@ -194,8 +195,10 @@ func bestCostRouteCrossover(nodes *node.NodeList,
 	rand.Seed(time.Now().UnixNano())
 	index1 := rand.Intn(len(ch1))
 	index2 := rand.Intn(len(ch2))
-	ch1 := deleteNodes(ch1, route2)
-	ch2 := deleteNodes(ch2, route1)
+	route1 := ch1[index1]
+	route2 := ch2[index2]
+	ch1 = deleteNodes(ch1, route2)
+	ch2 = deleteNodes(ch2, route1)
 	tmp1 := insertNode(nodes, ch1, route2)
 	tmp2 := insertNode(nodes, ch2, route1)
 	return tmp1, tmp2

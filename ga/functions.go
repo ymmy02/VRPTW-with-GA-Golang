@@ -4,6 +4,7 @@ import (
 	"../node"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 )
 
@@ -61,9 +62,10 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 	shuffle(flattench)
 	for cut1 < size {
 		breakFlag := false
+		route := make([]int, 0, size)
 		for cut2 = cut1; cut2 < size+1; cut2++ {
-			route := flattench[cut1:cut2]
-			if !nodes.is_feasible(route) {
+			route = flattench[cut1:cut2]
+			if !nodes.IsFeasible(route) {
 				cut1 = cut2 - 1
 				route = route[:len(route)-1]
 				breakFlag = true
@@ -78,14 +80,14 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 	return chromosome
 }
 
-func copyIndividual(indv Individual) *Individual {
-	newch := make([][]int, len(indv))
+func copyIndividual(indv *Individual) *Individual {
+	newch := make([][]int, len(indv.Chromosome))
 	copy(newch, indv.Chromosome)
 	// Debug
 	fmt.Println(newch)
-	distance = indv.Distance
-	fitness = indv.Fitness
-	newIndv = &Individual{
+	distance := indv.Distance
+	fitness := indv.Fitness
+	newIndv := &Individual{
 		Chromosome: newch,
 		Distance:   distance,
 		Fitness:    fitness,
@@ -93,28 +95,28 @@ func copyIndividual(indv Individual) *Individual {
 	return newIndv
 }
 
-func containsIndividual(indvList []*Individual, id int) {
+func containsIndividual(indvList []*Individual, counterpart *Individual) bool {
 	for _, indv := range indvList {
-		if indv.ID() == id {
+		if indv.IsEqual(counterpart) {
 			return true
 		}
 	}
 	return false
 }
 
-func doesLeftDominateRight(candidata *Individual, counterpart *Individual) int {
-	nvehicles1 = candidate.NVehicle()
-	nvehicles2 = counterpart.NVehicle()
-	distance1 = candidate.Distance
-	distance2 = counterpart.Distance
+func doesLeftDominateRight(candidate *Individual, counterpart *Individual) int {
+	nvehicles1 := candidate.NVehicle()
+	nvehicles2 := counterpart.NVehicle()
+	distance1 := candidate.Distance
+	distance2 := counterpart.Distance
 
-	if nvehicles1 == numofvehicle2 && distance1 == distance2 {
+	if nvehicles1 == nvehicles2 && distance1 == distance2 {
 		return SAME
 	}
-	if nvehicles1 <= numofvehicle2 && distance1 <= distance2 {
+	if nvehicles1 <= nvehicles2 && distance1 <= distance2 {
 		return LEFT
 	}
-	if nvehicles1 >= numofvehicle2 && distance1 >= distance2 {
+	if nvehicles1 >= nvehicles2 && distance1 >= distance2 {
 		return RIGHT
 	}
 	return SAME
@@ -131,9 +133,9 @@ func removeNullRoute(chromosome [][]int) [][]int {
 }
 
 func makeParetoRankingList(indvList []*Individual) [][]*Individual {
-	rankingList := make([][]*Individual)
+	rankingList := make([][]*Individual, 0)
 	for len(indvList) > 0 {
-		currentRankList, indvList = MakeCurrentRankingList(indvList)
+		currentRankList, _ := MakeCurrentRankingList(indvList)
 		rankingList = append(rankingList, currentRankList)
 	}
 	return rankingList
@@ -142,10 +144,20 @@ func makeParetoRankingList(indvList []*Individual) [][]*Individual {
 //********//
 // Public //
 //********//
+func Flatten(chromosome [][]int) []int {
+	flattench := make([]int, 0, 102)
+	for _, route := range chromosome {
+		for _, node := range route {
+			flattench = append(flattench, node)
+		}
+	}
+	return flattench
+}
+
 func CreateIndividualList(population int, nodes *node.NodeList) []*Individual {
 	indvList := make([]*Individual, 0, population)
 	for i := 0; i < population; i++ {
-		indv = CreateIndividualList(nodes)
+		indv := CreateIndividual(nodes)
 		indvList = append(indvList, indv)
 	}
 	return indvList
@@ -153,7 +165,7 @@ func CreateIndividualList(population int, nodes *node.NodeList) []*Individual {
 
 func SetDistance(nodes *node.NodeList, indvList []*Individual) {
 	for i := 0; i < len(indvList); i++ {
-		indvList[i].Distance = calcDistance(nodes, indvList[i].chromosome)
+		indvList[i].Distance = calcDistance(nodes, indvList[i].Chromosome)
 	}
 }
 
@@ -167,14 +179,12 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 	nondominatedList := make([]*Individual, 0, len(currentRankCandidates))
 
 	for i, candidate := range currentRankCandidates {
-		id := candidate.ID()
 		isDominated := false
-		if containsIndividual(dominatedList, id) {
+		if containsIndividual(dominatedList, candidate) {
 			continue
 		}
-		for _, counterpart := range current_rank_candidates[i+1:] {
-			id = counterpart.ID()
-			if containsIndividual(dominatedList, id) {
+		for _, counterpart := range currentRankCandidates[i+1:] {
+			if containsIndividual(dominatedList, counterpart) {
 				continue
 			}
 			switch doesLeftDominateRight(candidate, counterpart) {
@@ -182,7 +192,7 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 			case LEFT:
 				dominatedList = append(dominatedList, counterpart)
 			case RIGHT:
-				dominatedList = append(dominated_list, candidate)
+				dominatedList = append(dominatedList, candidate)
 				isDominated = true
 				break
 			default:
@@ -195,5 +205,5 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 		}
 	}
 
-	return nondominatedList, doesLeftDominateRight
+	return nondominatedList, dominatedList
 }

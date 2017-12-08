@@ -1,6 +1,7 @@
 package ga
 
 import (
+	"../node"
 	"reflect"
 )
 
@@ -25,12 +26,12 @@ func (indv *Individual) NVehicle() int {
 //***********//
 // Functions //
 //***********//
-func CreateIndividual(nodes) *Individual {
-	var flattench []int
-	var chromosome [][]int
-	customersIDList = nodes.CusotmersIDList()
+func CreateIndividual(nodes *node.NodeList) *Individual {
+	flattench := make([]int, 0, len(nodes.CusotmersIDList()))
+	chromosome := make([][]int, 0)
+	customersIDList := nodes.CusotmersIDList()
 	copy(flattench, customersIDList)
-	chromosome = shapeFlatToVehicles(flattench)
-	indv = &Individual{chromosome: chromosome}
+	chromosome = shapeFlatToVehicles(nodes, flattench)
+	indv := &Individual{Chromosome: chromosome}
 	return indv
 }

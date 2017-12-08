@@ -25,7 +25,7 @@ func choice(indvList []*Individual) *Individual {
 }
 
 func tournament(parents []*Individual, tournamentSize int, eliteSize int) []*Individual {
-	population = len(parents)
+	population := len(parents)
 	offsprings := make([]*Individual, 0, population)
 
 	// Elitism
@@ -39,12 +39,13 @@ func tournament(parents []*Individual, tournamentSize int, eliteSize int) []*Ind
 			}
 		}
 		var tmp *Individual
-		parents, tmp = pop(parents, i)
+		parents, tmp = pop(parents, minIndex)
 		offsprings = append(offsprings, tmp)
 	}
 
 	// Selection
 	samples := make([]*Individual, tournamentSize)
+	var tmp *Individual
 	population -= eliteSize
 	for i := 0; i < population; i++ {
 		var minFitness float64 = 1e14
@@ -52,8 +53,8 @@ func tournament(parents []*Individual, tournamentSize int, eliteSize int) []*Ind
 			samples[j] = choice(parents)
 		}
 		for i, indv := range samples {
-			if fitness := indv.fitness; fitness < minFitness {
-				tmp := samples[i]
+			if fitness := indv.Fitness; fitness < minFitness {
+				tmp = samples[i]
 				minFitness = fitness
 			}
 		}
@@ -83,7 +84,7 @@ func paretoRanking(parents []*Individual, eliteSize int) []*Individual {
 	// Elitism
 	count := 0
 	for _, rank := range rankingList {
-		for i = 0; i < len(rank); i++ {
+		for i := 0; i < len(rank); i++ {
 			if count > eliteSize {
 				break
 			}
@@ -100,7 +101,7 @@ func paretoRanking(parents []*Individual, eliteSize int) []*Individual {
 		rand.Seed(time.Now().UnixNano())
 		uniform = rand.Float64()
 		for i := 0; i < size; n++ {
-			span += (size - i) * part
+			span += float64(size-i) * part
 			if uniform < span {
 				tmp := choice(rankingList[i])
 				offsprings = append(offsprings, tmp)
@@ -120,23 +121,24 @@ type SLParams struct {
 	eliteSize      int
 }
 
-func Selection(method string, parents []*Individual, params SLParams) []*Individual {
+func Selection(method string, parents []*Individual, tournamentSize, eliteSize int) []*Individual {
 	var offsprings []*Individual
 	switch method {
 	case "wsum":
-		tournamentSize = params.tournamentSize
-		eliteSize = params.eliteSize
+		//tournamentSize := params.tournamentSize
+		//eliteSize := params.eliteSize
 		offsprings = tournament(parents, tournamentSize, eliteSize)
 	case "ranksum":
-		tournamentSize = params.tournamentSize
-		eliteSize = params.eliteSize
+		//tournamentSize := params.tournamentSize
+		//eliteSize := params.eliteSize
 		offsprings = ranksum(parents, tournamentSize, eliteSize)
 	case "pareto":
-		eliteSize = params.eliteSize
+		//eliteSize := params.eliteSize
 		offsprings = paretoRanking(parents, eliteSize)
 	default:
 		fmt.Println("!!!!! [ga/Selection] switch doesn't has such paramerter:",
 			method, "!!!!!")
 		os.Exit(0)
 	}
+	return offsprings
 }
