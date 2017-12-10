@@ -2,10 +2,8 @@ package ga
 
 import (
 	"../node"
-	"fmt"
 	"math"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -180,10 +178,6 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 	dominatedList := make([]*Individual, 0, len(currentRankCandidates))
 	nondominatedList := make([]*Individual, 0, len(currentRankCandidates))
 
-	cout1 := 0
-	cout2 := 0
-	cout3 := 0
-	fmt.Println("currentRankCandidates", len(currentRankCandidates))
 	for i, candidate := range currentRankCandidates {
 		isDominated := false
 		if containsIndividual(dominatedList, candidate) {
@@ -192,34 +186,18 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 
 		for j := i + 1; j < len(currentRankCandidates); j++ {
 			counterpart := currentRankCandidates[j]
-			if containsIndividual(dominatedList, counterpart) {
-				continue
-			}
 			result := doesLeftDominateRight(candidate, counterpart)
-			switch result {
-			case SAME:
-				continue
-			case LEFT:
-				dominatedList = append(dominatedList, counterpart)
-				cout2++
-			case RIGHT:
-				dominatedList = append(dominatedList, candidate)
+			if result == RIGHT {
 				isDominated = true
-				cout3++
-				break
-			default:
-				fmt.Println("ga/functions/MakeParetoRankingList")
-				os.Exit(0)
 			}
 		}
 
 		if !isDominated {
 			nondominatedList = append(nondominatedList, candidate)
-			cout1++
+		} else {
+			dominatedList = append(dominatedList, candidate)
 		}
 	}
 
-	fmt.Println(cout1, cout2, cout3)
-	fmt.Println("dominatedList", len(dominatedList))
 	return nondominatedList, dominatedList
 }
