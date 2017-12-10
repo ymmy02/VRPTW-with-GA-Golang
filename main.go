@@ -4,6 +4,7 @@ import (
 	"./node"
 	"./ut"
 	"./vrptw"
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -28,6 +29,24 @@ func main() {
 		suffix, _ = strconv.Atoi(os.Args[14])
 	}
 
+	fmt.Println("%%%%%%%%%%%%%%%%%%%")
+	fmt.Println("%%% INFORMATION %%%")
+	fmt.Println("%%%%%%%%%%%%%%%%%%%")
+	fmt.Println("Input File", filename)
+	fmt.Println("Output Path", outputPath)
+	fmt.Println("Population", population)
+	fmt.Println("Max Generation", generationSpan)
+	fmt.Println("Selection", selection)
+	fmt.Println("Crossover", crossover)
+	fmt.Println("Mutation", mutation)
+	fmt.Println("Elite Size", eliteSize)
+	fmt.Println("Tournament Size", tournamentSize)
+	fmt.Println("Crossover Rate", cxRate)
+	fmt.Println("Mutation Rate", muRate)
+	fmt.Println("%%%%%%%%%%%%%%%%%%%%%")
+	fmt.Println("%%% PROGRAM START %%%")
+	fmt.Println("%%%%%%%%%%%%%%%%%%%%%")
+
 	vcFilename := ut.VcFilename(filename)
 	nodeFilename := filename
 	nodes := node.LoadData(vcFilename, nodeFilename)
@@ -43,4 +62,8 @@ func main() {
 	ut.WriteResults(generations, nvehicleAvgs, distanceAvgs,
 		nvehicleBests, distanceBests, outputPath, suffix)
 	ut.WriteBestSolutions(bestSolutions, outputPath, suffix)
+
+	fmt.Println("%%%%%%%%%%%%%%%%%%%")
+	fmt.Println("%%% PROGRAM END %%%")
+	fmt.Println("%%%%%%%%%%%%%%%%%%%")
 }
