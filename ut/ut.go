@@ -4,8 +4,23 @@ import (
 	"../ga"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
+
+//*********//
+// Private //
+//*********//
+func addSuffix(file string, suffix int) string {
+	var filename string
+	if suffix == 0 {
+		filename = file
+	} else {
+		s := fmt.Sprintf("_%03d", suffix)
+		filename = file + s
+	}
+	return filename
+}
 
 //********//
 // Public //
@@ -93,4 +108,61 @@ func PickUpBestIndvs(selection string, indvList []*ga.Individual) []*ga.Individu
 	}
 
 	return RemoveDuplication(bestSolutions)
+}
+
+func WriteResults(generations []int, nvehicleAvgs, distanceAvgs,
+	nvehicleBests, distanceBests []float64, outputPath string, suffix int) {
+	outputPath += "/"
+	filename := addSuffix("output", suffix) + ".dat"
+	file, err := os.Create(outputPath + filename)
+	if err != nil {
+		fmt.Println("File Open Error")
+	}
+	defer file.Close()
+
+	for i := 0; i < len(generations); i++ {
+		ge := strconv.Itoa(generations[i]) + " "
+		na := strconv.FormatFloat(nvehicleAvgs[i], 'f', 4, 64) + " "
+		da := strconv.FormatFloat(distanceAvgs[i], 'f', 4, 64) + " "
+		nb := strconv.FormatFloat(nvehicleBests[i], 'f', 4, 64) + " "
+		db := strconv.FormatFloat(distanceBests[i], 'f', 4, 64) + "\n"
+		line := ge + na + da + nb + db
+		file.Write(([]byte)(line))
+	}
+}
+
+func WriteBestSolutions(bestSolutions []*ga.Individual,
+	outputPath string, suffix int) {
+	outputPath += "/"
+	filename := addSuffix("best_solutions", suffix) + ".dat"
+
+	// Number of Vehicles, Total Distance
+	file, err := os.Create(outputPath + filename)
+	if err != nil {
+		fmt.Println("File Open Error")
+	}
+	defer file.Close()
+	for _, indv := range bestSolutions {
+		nvehicle := strconv.Itoa(indv.NVehicle())
+		distance := strconv.FormatFloat(indv.Distance, 'f', 4, 64)
+		line := nvehicle + " " + distance + "\n"
+		file.Write(([]byte)(line))
+	}
+
+	// Rkutings
+	for i, indv := range bestSolutions {
+		s := fmt.Sprintf("%03d", i)
+		filename = addSuffix("routing"+s, suffix) + ".txt"
+		f, e := os.Create(outputPath + filename)
+		if e != nil {
+			fmt.Println("File Open Error")
+		}
+		for _, route := range indv.Chromosome {
+			line := make([]string, len(route))
+			for j, node := range route {
+				line[j] = strconv.Itoa(node)
+			}
+			f.Write(([]byte)(strings.Join(line, " ") + "\n"))
+		}
+	}
 }

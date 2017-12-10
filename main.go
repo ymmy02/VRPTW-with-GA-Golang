@@ -11,7 +11,7 @@ import (
 func main() {
 
 	filename := os.Args[1]
-	//outputPath := os.Args[2]
+	outputPath := os.Args[2]
 	population, _ := strconv.Atoi(os.Args[3])
 	generationSpan, _ := strconv.Atoi(os.Args[4])
 	selection := os.Args[5]
@@ -23,10 +23,10 @@ func main() {
 	tournamentSize, _ := strconv.Atoi(os.Args[11])
 	cxRate, _ := strconv.ParseFloat(os.Args[12], 64)
 	muRate, _ := strconv.ParseFloat(os.Args[13], 64)
-	//suffix := 0
-	//if len(os.Args) > 14 {
-	//	suffix, _ = strconv.Atoi(os.Args[14])
-	//}
+	suffix := 0
+	if len(os.Args) > 14 {
+		suffix, _ = strconv.Atoi(os.Args[14])
+	}
 
 	vcFilename := ut.VcFilename(filename)
 	nodeFilename := filename
@@ -37,10 +37,10 @@ func main() {
 		selection, crossover, mutation, wNvehicle,
 		wDistance, eliteSize, tournamentSize, cxRate, muRate)
 
-	//generations, nvehicle_avgs, distance_avgs,
-	//	nvehicle_bests, distance_bests := v.Records()
-	//bestSolutions := v.BestSolutions()
-	//ut.writeResults(generations, nvehicle_avgs, distance_avgs,
-	//	nvehicle_bests, distance_bests, output_path, suffix)
-	//ut.writeBestSolutions(best_indv_list, output_path, suffix)
+	generations, nvehicleAvgs, distanceAvgs,
+		nvehicleBests, distanceBests := v.Records()
+	bestSolutions := v.BestSolutions()
+	ut.WriteResults(generations, nvehicleAvgs, distanceAvgs,
+		nvehicleBests, distanceBests, outputPath, suffix)
+	ut.WriteBestSolutions(bestSolutions, outputPath, suffix)
 }

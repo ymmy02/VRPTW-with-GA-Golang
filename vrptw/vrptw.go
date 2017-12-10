@@ -129,6 +129,16 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 	v.isOptimized = true
 }
 
+func (v *VRPTW) Records() ([]int, []float64,
+	[]float64, []float64, []float64) {
+	return v.generations, v.nvehicleAvgs,
+		v.distanceAvgs, v.nvehicleBests, v.distanceBests
+}
+
+func (v *VRPTW) BestSolutions() []*ga.Individual {
+	return v.bestSolutions
+}
+
 //***********//
 // Functions //
 //***********//
