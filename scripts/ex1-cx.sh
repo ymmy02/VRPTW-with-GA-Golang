@@ -5,7 +5,7 @@ DATASETDIR=dataset
 # input file is ${TYPE}0${INDEX}.txt ex) R101.txt
 RESULTDIR=results
 POPULATION=100
-GENERATION=10
+GENERATION=100
 SELECTION=wsum       # pareto, wsum, ranksum
 #CROSSOVER=bcrc      # uox, pmx, rc, bcrc
 MUTATION=inversion
