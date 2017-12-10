@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	//"sort"
 	"time"
 )
 
@@ -108,7 +109,7 @@ func partiallyMappedCrossover(nodes *node.NodeList,
 	pre = getNoConflictList(flattench2[:point1], tmp)
 	suf = getNoConflictList(flattench2[point2:], tmp)
 	tmpch2 = append(pre, tmp...)
-	tmpch2 = append(tmpch1, suf...)
+	tmpch2 = append(tmpch2, suf...)
 
 	for _, node := range flattench2 {
 		if !containsNode(tmpch1, node) {
@@ -131,10 +132,18 @@ func partiallyMappedCrossover(nodes *node.NodeList,
 // ===== </Partially Mapped Crossover (PMX)> ===== //
 
 // ===== <Best Cost Route Crossover (BCRC)> ===== //
+func insertNodeIntoRoute(route []int, insertNode, index int) []int {
+	insertedRoute := make([]int, len(route)+1)
+	tmp := append(route[:index+1], route[index:]...)
+	copy(insertedRoute, tmp)
+	insertedRoute[index] = insertNode
+	return insertedRoute
+}
+
 func insertNode(nodes *node.NodeList,
 	chromosome [][]int, L []int) [][]int {
 	size := len(chromosome)
-	newChromosome := make([][]int, 0, len(chromosome))
+	newChromosome := make([][]int, 0, len(chromosome)+5)
 	// Copy Chromosome
 	for i := 0; i < size; i++ {
 		tmp := make([]int, len(chromosome[i]))
@@ -147,28 +156,24 @@ func insertNode(nodes *node.NodeList,
 		feasibleListJ := make([]int, 0)
 		for i, route := range chromosome {
 			for j := 0; j < len(route); j++ {
-				tmp := append(route[:j+1], route[j:]...)
-				tmp[j] = insertNode
+				tmp := insertNodeIntoRoute(route, insertNode, j)
 				if nodes.IsFeasible(tmp) {
 					feasibleListI = append(feasibleListI, i)
 					feasibleListJ = append(feasibleListJ, j)
 				}
 			}
-			if len(feasibleListI) == 0 {
-				newRoute := make([]int, 1)
-				newRoute[0] = insertNode
-				newChromosome = append(newChromosome, newRoute)
-			} else {
-				rand.Seed(time.Now().UnixNano())
-				index := rand.Intn(len(feasibleListI))
-				indexI := feasibleListI[index]
-				indexJ := feasibleListJ[index]
-				tmp := make([]int, len(newChromosome[indexI]))
-				copy(tmp, newChromosome[indexI])
-				tmp = append(tmp[:indexJ+1], tmp[indexJ:]...)
-				tmp[indexJ] = insertNode
-				newChromosome[indexI] = tmp
-			}
+		}
+		if len(feasibleListI) == 0 {
+			newRoute := make([]int, 1)
+			newRoute[0] = insertNode
+			newChromosome = append(newChromosome, newRoute)
+		} else {
+			rand.Seed(time.Now().UnixNano())
+			index := rand.Intn(len(feasibleListI))
+			indexI := feasibleListI[index]
+			indexJ := feasibleListJ[index]
+			tmp := insertNodeIntoRoute(newChromosome[indexI], insertNode, indexJ)
+			newChromosome[indexI] = tmp
 		}
 	}
 	return newChromosome

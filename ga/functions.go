@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"time"
 )
 
 const (
@@ -48,8 +49,8 @@ func calcDistance(nodes *node.NodeList, chromosome [][]int) float64 {
 }
 
 func shuffle(data []int) {
-	n := len(data)
-	for i := n - 1; i >= 0; i-- {
+	for i := range data {
+		rand.Seed(time.Now().UnixNano())
 		j := rand.Intn(i + 1)
 		data[i], data[j] = data[j], data[i]
 	}
@@ -59,7 +60,6 @@ func shapeFlatToVehicles(nodes *node.NodeList, flattench []int) [][]int {
 	chromosome := make([][]int, 0)
 	size := len(flattench)
 	var cut1, cut2 int = 0, 0
-	shuffle(flattench)
 	for cut1 < size {
 		breakFlag := false
 		route := make([]int, 0, size)
@@ -131,9 +131,13 @@ func removeNullRoute(chromosome [][]int) [][]int {
 }
 
 func makeParetoRankingList(indvList []*Individual) [][]*Individual {
+	tmpList := make([]*Individual, len(indvList))
+	copy(tmpList, indvList)
 	rankingList := make([][]*Individual, 0)
-	for len(indvList) > 0 {
-		currentRankList, _ := MakeCurrentRankingList(indvList)
+	var currentRankList []*Individual
+
+	for len(tmpList) > 0 {
+		currentRankList, tmpList = MakeCurrentRankingList(tmpList)
 		rankingList = append(rankingList, currentRankList)
 	}
 	return rankingList
@@ -176,32 +180,46 @@ func MakeCurrentRankingList(currentRankCandidates []*Individual) ([]*Individual,
 	dominatedList := make([]*Individual, 0, len(currentRankCandidates))
 	nondominatedList := make([]*Individual, 0, len(currentRankCandidates))
 
+	cout1 := 0
+	cout2 := 0
+	cout3 := 0
+	fmt.Println("currentRankCandidates", len(currentRankCandidates))
 	for i, candidate := range currentRankCandidates {
 		isDominated := false
 		if containsIndividual(dominatedList, candidate) {
 			continue
 		}
-		for _, counterpart := range currentRankCandidates[i+1:] {
+
+		for j := i + 1; j < len(currentRankCandidates); j++ {
+			counterpart := currentRankCandidates[j]
 			if containsIndividual(dominatedList, counterpart) {
 				continue
 			}
-			switch doesLeftDominateRight(candidate, counterpart) {
+			result := doesLeftDominateRight(candidate, counterpart)
+			switch result {
 			case SAME:
+				continue
 			case LEFT:
 				dominatedList = append(dominatedList, counterpart)
+				cout2++
 			case RIGHT:
 				dominatedList = append(dominatedList, candidate)
 				isDominated = true
+				cout3++
 				break
 			default:
 				fmt.Println("ga/functions/MakeParetoRankingList")
 				os.Exit(0)
 			}
 		}
+
 		if !isDominated {
 			nondominatedList = append(nondominatedList, candidate)
+			cout1++
 		}
 	}
 
+	fmt.Println(cout1, cout2, cout3)
+	fmt.Println("dominatedList", len(dominatedList))
 	return nondominatedList, dominatedList
 }

@@ -15,7 +15,8 @@ type Individual struct {
 // Methods of Individual //
 //***********************//
 func (indv *Individual) IsEqual(counterpart *Individual) bool {
-	return reflect.DeepEqual(indv.Chromosome, counterpart.Chromosome)
+	result := reflect.DeepEqual(indv.Chromosome, counterpart.Chromosome)
+	return result
 }
 
 func (indv *Individual) NVehicle() int {
@@ -31,6 +32,7 @@ func CreateIndividual(nodes *node.NodeList) *Individual {
 	chromosome := make([][]int, 0)
 	customersIDList := nodes.CusotmersIDList()
 	copy(flattench, customersIDList)
+	shuffle(flattench)
 	chromosome = shapeFlatToVehicles(nodes, flattench)
 	indv := &Individual{Chromosome: make([][]int, 0)}
 	indv.Chromosome = chromosome
