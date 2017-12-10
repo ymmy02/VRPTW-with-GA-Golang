@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+const (
+	EPSILON = 1e-5
+)
+
 //*********//
 // Private //
 //*********//
@@ -76,7 +80,16 @@ func RemoveDuplication(indvList []*ga.Individual) []*ga.Individual {
 	for i, indv1 := range indvList[1:] {
 		flagAdd := true
 		for _, indv2 := range noduplList {
+			nvehicle1 := indv1.NVehicle()
+			distance1 := indv1.Distance
+			nvehicle2 := indv2.NVehicle()
+			distance2 := indv2.Distance
 			if indv1.IsEqual(indv2) {
+				flagAdd = false
+				break
+			}
+			if nvehicle1 == nvehicle2 &&
+				distance1-distance2 < EPSILON {
 				flagAdd = false
 				break
 			}
