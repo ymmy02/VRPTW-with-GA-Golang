@@ -14,8 +14,10 @@ type VRPTW struct {
 	generations   []int
 	nvehicleAvgs  []float64
 	distanceAvgs  []float64
+	fitnessAvgs   []float64
 	nvehicleBests []float64
 	distanceBests []float64
+	fitnessBests  []float64
 }
 
 //******************//
@@ -27,14 +29,18 @@ func (v *VRPTW) record(selection string, generation int, indvList []*ga.Individu
 
 	nvehicleAvg := ut.CalcNvehicleAverage(indvList)
 	distanceAvg := ut.CalcDistanceAverage(indvList)
+	fitnessAvg := ut.CalcFitnessAverage(indvList)
 	nvehicleBest := ut.CalcNvehicleAverage(bestIdnvList)
 	distanceBest := ut.CalcDistanceAverage(bestIdnvList)
+	fitnessBest := ut.CalcFitnessAverage(bestIdnvList)
 
 	v.generations = append(v.generations, generation)
 	v.nvehicleAvgs = append(v.nvehicleAvgs, nvehicleAvg)
 	v.distanceAvgs = append(v.distanceAvgs, distanceAvg)
+	v.fitnessAvgs = append(v.fitnessAvgs, fitnessAvg)
 	v.nvehicleBests = append(v.nvehicleBests, nvehicleBest)
 	v.distanceBests = append(v.distanceBests, distanceBest)
+	v.fitnessBests = append(v.fitnessBests, fitnessBest)
 }
 
 // = Public = //
@@ -46,7 +52,6 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 	// Initialize //
 	//************//
 	parents := ga.CreateIndividualList(population, nodes)
-	//offsprings := make([]*Individual, 0, population)
 	ga.SetDistance(nodes, parents)
 	// Evaluate Fitness
 	switch selection {
@@ -129,10 +134,10 @@ func (v *VRPTW) GAOptimize(nodes *node.NodeList, population int,
 	v.isOptimized = true
 }
 
-func (v *VRPTW) Records() ([]int, []float64,
-	[]float64, []float64, []float64) {
-	return v.generations, v.nvehicleAvgs,
-		v.distanceAvgs, v.nvehicleBests, v.distanceBests
+func (v *VRPTW) Records() ([]int, []float64, []float64,
+	[]float64, []float64, []float64, []float64) {
+	return v.generations, v.nvehicleAvgs, v.distanceAvgs,
+		v.fitnessAvgs, v.nvehicleBests, v.distanceBests, v.fitnessBests
 }
 
 func (v *VRPTW) BestSolutions() []*ga.Individual {

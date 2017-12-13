@@ -56,12 +56,13 @@ func main() {
 		selection, crossover, mutation, wNvehicle,
 		wDistance, eliteSize, tournamentSize, cxRate, muRate)
 
-	generations, nvehicleAvgs, distanceAvgs,
-		nvehicleBests, distanceBests := v.Records()
+	generations, nvehicleAvgs, distanceAvgs, fitnessAvgs,
+		nvehicleBests, distanceBests, fitnessBests := v.Records()
 	bestSolutions := v.BestSolutions()
-	ut.WriteResults(generations, nvehicleAvgs, distanceAvgs,
-		nvehicleBests, distanceBests, outputPath, suffix)
-	ut.WriteBestSolutions(bestSolutions, outputPath, suffix)
+	ut.WriteResults(selection, generations, nvehicleAvgs,
+		distanceAvgs, fitnessAvgs, nvehicleBests, distanceBests,
+		fitnessBests, outputPath, suffix)
+	ut.WriteBestSolutions(selection, bestSolutions, outputPath, suffix)
 
 	fmt.Println("%%%%%%%%%%%%%%%%%%%")
 	fmt.Println("%%% PROGRAM END %%%")

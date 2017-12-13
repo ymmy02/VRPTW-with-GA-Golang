@@ -74,6 +74,14 @@ func CalcDistanceAverage(indvList []*ga.Individual) float64 {
 	return avg / float64(len(indvList))
 }
 
+func CalcFitnessAverage(indvList []*ga.Individual) float64 {
+	var avg float64 = 0.0
+	for _, indv := range indvList {
+		avg += indv.Fitness
+	}
+	return avg / float64(len(indvList))
+}
+
 func RemoveDuplication(indvList []*ga.Individual) []*ga.Individual {
 	noduplList := make([]*ga.Individual, 0)
 	noduplList = append(noduplList, indvList[0])
@@ -123,8 +131,8 @@ func PickUpBestIndvs(selection string, indvList []*ga.Individual) []*ga.Individu
 	return RemoveDuplication(bestSolutions)
 }
 
-func WriteResults(generations []int, nvehicleAvgs, distanceAvgs,
-	nvehicleBests, distanceBests []float64, outputPath string, suffix int) {
+func WriteResults(selection string, generations []int, nvehicleAvgs, distanceAvgs, fitnessAvgs,
+	nvehicleBests, distanceBests, fitnessBests []float64, outputPath string, suffix int) {
 	outputPath += "/"
 	filename := addSuffix("output", suffix) + ".dat"
 	file, err := os.Create(outputPath + filename)
@@ -133,18 +141,33 @@ func WriteResults(generations []int, nvehicleAvgs, distanceAvgs,
 	}
 	defer file.Close()
 
-	for i := 0; i < len(generations); i++ {
-		ge := strconv.Itoa(generations[i]) + " "
-		na := strconv.FormatFloat(nvehicleAvgs[i], 'f', 4, 64) + " "
-		da := strconv.FormatFloat(distanceAvgs[i], 'f', 4, 64) + " "
-		nb := strconv.FormatFloat(nvehicleBests[i], 'f', 4, 64) + " "
-		db := strconv.FormatFloat(distanceBests[i], 'f', 4, 64) + "\n"
-		line := ge + na + da + nb + db
-		file.Write(([]byte)(line))
+	switch selection {
+	case "pareto":
+		for i := 0; i < len(generations); i++ {
+			ge := strconv.Itoa(generations[i]) + " "
+			na := strconv.FormatFloat(nvehicleAvgs[i], 'f', 4, 64) + " "
+			da := strconv.FormatFloat(distanceAvgs[i], 'f', 4, 64) + " "
+			nb := strconv.FormatFloat(nvehicleBests[i], 'f', 4, 64) + " "
+			db := strconv.FormatFloat(distanceBests[i], 'f', 4, 64) + "\n"
+			line := ge + na + da + nb + db
+			file.Write(([]byte)(line))
+		}
+	default:
+		for i := 0; i < len(generations); i++ {
+			ge := strconv.Itoa(generations[i]) + " "
+			na := strconv.FormatFloat(nvehicleAvgs[i], 'f', 4, 64) + " "
+			da := strconv.FormatFloat(distanceAvgs[i], 'f', 4, 64) + " "
+			fa := strconv.FormatFloat(fitnessAvgs[i], 'f', 4, 64) + " "
+			nb := strconv.FormatFloat(nvehicleBests[i], 'f', 4, 64) + " "
+			db := strconv.FormatFloat(distanceBests[i], 'f', 4, 64) + " "
+			fb := strconv.FormatFloat(fitnessBests[i], 'f', 4, 64) + "\n"
+			line := ge + na + da + fa + nb + db + fb
+			file.Write(([]byte)(line))
+		}
 	}
 }
 
-func WriteBestSolutions(bestSolutions []*ga.Individual,
+func WriteBestSolutions(selection string, bestSolutions []*ga.Individual,
 	outputPath string, suffix int) {
 	outputPath += "/"
 	filename := addSuffix("best_solutions", suffix) + ".dat"
@@ -155,11 +178,22 @@ func WriteBestSolutions(bestSolutions []*ga.Individual,
 		fmt.Println("File Open Error")
 	}
 	defer file.Close()
-	for _, indv := range bestSolutions {
-		nvehicle := strconv.Itoa(indv.NVehicle())
-		distance := strconv.FormatFloat(indv.Distance, 'f', 4, 64)
-		line := nvehicle + " " + distance + "\n"
-		file.Write(([]byte)(line))
+	switch selection {
+	case "pareto":
+		for _, indv := range bestSolutions {
+			nvehicle := strconv.Itoa(indv.NVehicle())
+			distance := strconv.FormatFloat(indv.Distance, 'f', 4, 64)
+			line := nvehicle + " " + distance + "\n"
+			file.Write(([]byte)(line))
+		}
+	default:
+		for _, indv := range bestSolutions {
+			nvehicle := strconv.Itoa(indv.NVehicle())
+			distance := strconv.FormatFloat(indv.Distance, 'f', 4, 64)
+			fitness := strconv.FormatFloat(indv.Fitness, 'f', 4, 64)
+			line := nvehicle + " " + distance + " " + fitness + "\n"
+			file.Write(([]byte)(line))
+		}
 	}
 
 	// Rkutings
