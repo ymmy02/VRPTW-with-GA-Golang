@@ -19,7 +19,6 @@ func pop(indvList []*Individual, i int) ([]*Individual, *Individual) {
 }
 
 func choice(indvList []*Individual) *Individual {
-	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(len(indvList))
 	return indvList[i]
 }
@@ -78,9 +77,6 @@ func paretoRanking(parents []*Individual, eliteSize int) []*Individual {
 	npart := float64((size * (size + 1)) / 2)
 	part := 1.0 / npart
 
-	rand.Seed(time.Now().UnixNano())
-	uniform := rand.Float64()
-
 	// Elitism
 	count := 0
 	for _, rank := range rankingList {
@@ -98,8 +94,7 @@ func paretoRanking(parents []*Individual, eliteSize int) []*Individual {
 	var span float64 = 0.0
 	population -= eliteSize
 	for n := 0; n < population; n++ {
-		rand.Seed(time.Now().UnixNano())
-		uniform = rand.Float64()
+		uniform := rand.Float64()
 		for i := 0; i < size; n++ {
 			span += float64(size-i) * part
 			if uniform < span {
@@ -123,17 +118,13 @@ type SLParams struct {
 
 func Selection(method string, parents []*Individual, tournamentSize, eliteSize int) []*Individual {
 	var offsprings []*Individual
+	rand.Seed(time.Now().UnixNano())
 	switch method {
 	case "wsum":
-		//tournamentSize := params.tournamentSize
-		//eliteSize := params.eliteSize
 		offsprings = tournament(parents, tournamentSize, eliteSize)
 	case "ranksum":
-		//tournamentSize := params.tournamentSize
-		//eliteSize := params.eliteSize
 		offsprings = ranksum(parents, tournamentSize, eliteSize)
 	case "pareto":
-		//eliteSize := params.eliteSize
 		offsprings = paretoRanking(parents, eliteSize)
 	default:
 		fmt.Println("!!!!! [ga/Selection] switch doesn't has such paramerter:",

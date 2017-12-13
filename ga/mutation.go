@@ -36,8 +36,8 @@ func Mutation(method string, nodes *node.NodeList,
 	offsprings []*Individual, rate float64) []*Individual {
 	population := len(offsprings)
 	newOffsprings := make([]*Individual, 0, population)
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < population; i++ {
-		rand.Seed(time.Now().UnixNano())
 		uniform := rand.Float64()
 		tmp := copyIndividual(offsprings[i])
 		if uniform < rate {

@@ -47,8 +47,8 @@ func calcDistance(nodes *node.NodeList, chromosome [][]int) float64 {
 }
 
 func shuffle(data []int) {
+	rand.Seed(time.Now().UnixNano())
 	for i := range data {
-		rand.Seed(time.Now().UnixNano())
 		j := rand.Intn(i + 1)
 		data[i], data[j] = data[j], data[i]
 	}

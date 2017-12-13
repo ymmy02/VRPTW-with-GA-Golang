@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	//"sort"
 	"time"
 )
 
@@ -37,7 +36,6 @@ func uniformOrderCrossover(nodes *node.NodeList, ch1, ch2 [][]int) ([][]int, [][
 	size := len(flattench1)
 	mask := make([]int, size)
 	for i := 0; i < size; i++ {
-		rand.Seed(time.Now().UnixNano())
 		mask[i] = rand.Intn(2)
 	}
 	tmpch1 := make([]int, size)
@@ -87,7 +85,6 @@ func partiallyMappedCrossover(nodes *node.NodeList,
 	flattench1 := Flatten(ch1)
 	flattench2 := Flatten(ch2)
 	size := len(flattench1)
-	rand.Seed(time.Now().UnixNano())
 	point1 := rand.Intn(size - 1)
 	point2 := rand.Intn(size)
 	for point1 == point2 {
@@ -168,7 +165,6 @@ func insertNode(nodes *node.NodeList,
 			newRoute[0] = insertNode
 			newChromosome = append(newChromosome, newRoute)
 		} else {
-			rand.Seed(time.Now().UnixNano())
 			index := rand.Intn(len(feasibleListI))
 			indexI := feasibleListI[index]
 			indexJ := feasibleListJ[index]
@@ -195,7 +191,6 @@ func deleteNodes(chromosome [][]int, route []int) [][]int {
 
 func bestCostRouteCrossover(nodes *node.NodeList,
 	ch1, ch2 [][]int) ([][]int, [][]int) {
-	rand.Seed(time.Now().UnixNano())
 	index1 := rand.Intn(len(ch1))
 	index2 := rand.Intn(len(ch2))
 	route1 := ch1[index1]
@@ -217,6 +212,7 @@ func Crossover(method string, nodes *node.NodeList,
 	population := len(offsprings)
 	newOffsprings := make([]*Individual, 0, population)
 	half := int(population / 2)
+	rand.Seed(time.Now().UnixNano())
 
 	halfList1 := offsprings[:half]
 	halfList2 := offsprings[half:]
@@ -224,7 +220,6 @@ func Crossover(method string, nodes *node.NodeList,
 	for i := 0; i < half; i++ {
 		tmp1 := copyIndividual(halfList1[i])
 		tmp2 := copyIndividual(halfList2[i])
-		rand.Seed(time.Now().UnixNano())
 		uniform := rand.Float64()
 		if uniform < rate {
 			switch method {
